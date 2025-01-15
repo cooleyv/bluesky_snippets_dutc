@@ -1,3 +1,15 @@
+""" 
+Example of data collection from a larger bluesky plan document. 
+
+In this case, `expose()` collects images on an area detector without moving any motors. 
+
+We may collect bright images (beam on, nothing in front of detector), and/or dark images (beam off), 
+and/or data images (beam on, sample in front of detector). We collect data in h5 and tiff formats, 
+depending on detector and technique. Each collection event is logged as a run by the run engine. 
+This is associated with information recorded in mongoDB.
+
+"""
+
 import logging 
 logger = logging.getLogger(__name__)
 logger.info(__file__)
@@ -9,7 +21,6 @@ from bluesky.utils import Msg
 from bluesky import preprocessors as bpp
 from bluesky import plan_patterns
 from ophyd import Signal, Device, Component
-
 
 #import auxiliary plans
 from .auxiliary_ad import *
