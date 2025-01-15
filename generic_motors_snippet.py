@@ -1,5 +1,10 @@
 """ 
-Modify EpicsMotor for the MPE group and create a lens device. 
+Bluesky uses the ophyd package to communicate with motors through channel-access protocol (aka EPICS). 
+Here we modify the vanilla ophyd EpicsMotor class to include additional attributes/information about our motors. 
+We then use this modified class to create devices that represent (and control) physical devices in our experimental 
+hutches. The example here is a stack of six motors to move a lens (x, y, z translation, roll, pitch, and yaw (tilts)).
+
+We also developed generic devices that account for these 6 degrees of freedom. 
 """
 
 import logging
@@ -47,3 +52,45 @@ class Lens1C(Device):
 
 lens1 = Lens1C("1idc:", name = "lens1") #1idc: = input/output controller prefix for these motors
 
+class Generic5DOFDevice(Device):
+    #Generic device with 5 degrees of freedom (no motion in Z)
+    
+    x       = FormattedComponent(MPEMotor, "{prefix}{xpv}")
+    y       = FormattedComponent(MPEMotor, "{prefix}{ypv}")
+    rotx    = FormattedComponent(MPEMotor, "{prefix}{rotxpv}")
+    roty    = FormattedComponent(MPEMotor, "{prefix}{rotypv}")
+    rotz    = FormattedComponent(MPEMotor, "{prefix}{rotzpv}")
+
+    def __init__(self, prefix = "", *, xpv="", ypv="",rotxpv="", rotypv="", rotzpv="", **kwargs):
+        self.prefix = prefix
+        self.xpv = xpv
+        self.ypv = ypv
+        self.rotxpv = rotxpv
+        self.rotypv = rotypv
+        self.rotzpv = rotzpv
+        super().__init__(prefix=prefix, **kwargs)
+
+class Generic6DOFDevice(Generic5DOFDevice):
+    #Generic device with 6 degrees of freedom (includes Z)
+    
+    z = FormattedComponent(MPEMotor, "{prefix}{zpv}")
+
+    def __init__(self, prefix="", *,xpv="", ypv="", zpv="", rotxpv="", rotypv="", rotzpv="",**kwargs):
+        self.zpv = zpv
+        super().__init__(
+            prefix=prefix,
+            xpv=xpv, ypv=ypv, 
+            rotxpv=rotxpv, rotypv=rotypv, rotzpv=rotzpv, 
+            **kwargs
+        )
+
+lens2 = Generic5DOFDevice(
+    #upright
+    "1ide1:", 
+    name   = "lens2_e",
+    xpv    = "m118",    
+    ypv    = "m29",
+    rotxpv = "m32",    
+    rotypv = "m120",    
+    rotzpv = "m33"
+)
