@@ -87,7 +87,7 @@ class Generic6DOFDevice(Generic5DOFDevice):
 lens2 = Generic5DOFDevice(
     #upright
     "1ide1:", 
-    name   = "lens2_e",
+    name   = "lens2",
     xpv    = "m118",    
     ypv    = "m29",
     rotxpv = "m32",    
